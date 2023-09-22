@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const supabase = require('../supabaseConfig')
+const { supabase } = require('../supabaseConfig')
 
 router.use(express.json())
 
@@ -13,7 +13,7 @@ router.post('/signup', async(req, res) => {
         })
         if (error) throw error
         res.json({ user })
-    } catch{
+    } catch(error){
         res.status(400).json({ error: error.message})
     }
 })
@@ -66,3 +66,5 @@ router.post('/logout', async(req, res) => {
         res.status(400).json({ error: error.message})
     } 
 })
+
+module.exports = router
