@@ -8,35 +8,35 @@ router.use(express.json())
 
 
 //COnfigure Google OAuth strategy using passport
-passport.use(
-    new GoogleStrategy(
-        {
-            clientID: '',
-            clientSecret: '',
-            callbackURL: '',
-        },
-        async (accessToken, refreshToken, profile, done) => {
-             // Use the profile data to sign up or sign in the user in Supabase
-            try {
-                const { email } = profile._json
-                const { user, error } = await supabase.auth.signInWithOAuth({
-                  provider: 'google',
-                })
-                if (error) throw error
-                return done(null, user)
-            } catch (error) {
-                return done(error)
-            }
-        }
-    )
-)
+// passport.use(
+//     new GoogleStrategy(
+//         {
+//             clientID: '',
+//             clientSecret: '',
+//             callbackURL: '',
+//         },
+//         async (accessToken, refreshToken, profile, done) => {
+//              // Use the profile data to sign up or sign in the user in Supabase
+//             try {
+//                 const { email } = profile._json
+//                 const { user, error } = await supabase.auth.signInWithOAuth({
+//                   provider: 'google',
+//                 })
+//                 if (error) throw error
+//                 return done(null, user)
+//             } catch (error) {
+//                 return done(error)
+//             }
+//         }
+//     )
+// )
 
-// Initialize Passport session
-router.use(passport.initialize())
-router.use(passport.session())
+// // Initialize Passport session
+// router.use(passport.initialize())
+// router.use(passport.session())
 
-passport.serializeUser((user, done) => done(null, user))
-passport.deserializeUser((user, done) => done(null, user))
+// passport.serializeUser((user, done) => done(null, user))
+// passport.deserializeUser((user, done) => done(null, user))
 
 
 //Create a new user
@@ -89,23 +89,26 @@ router.post('/login', async (req, res) => {
 router.post('/reset-password', async(req, res) => {
     try{
         const { email } = req.body
-        const { error } = await supabase.auth.api.resetPasswordForEmail(email)
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: 'https://example.com/update-password',
+          })
         if (error) throw error
         res.json({message: "Password reset link sent successfully"})
     }catch(error){
         res.status(400).json({ error: error.message})
     }
 })
+// Added redirectTo in the reset password funtionality and now its working
 
 // Update 
 router.post('/update-user', async(req, res) => {
     try{
-        const { password } = req.body
+        const { email, password } = req.body
         const { user, error } = await supabase.auth.updateUser({
             password
         })
         if(error) throw error
-        res.json({ message: "Updated password and email"})
+        res.json({ message: `Updated password for ${email}`})
     }catch(error){ 
         res.status(400).json({ error: error.message})
     }
