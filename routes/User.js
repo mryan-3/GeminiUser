@@ -118,6 +118,9 @@ router.post('/update-user', async(req, res) => {
 router.post('/logout', async(req, res) => {
     try{
         const { error } = await supabase.auth.signOut()
+        if (error) {
+            throw error;
+        }
     }catch(error){
         res.status(400).json({ error: error.message})
     } 
